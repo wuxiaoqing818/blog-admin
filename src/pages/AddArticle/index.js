@@ -1,11 +1,19 @@
-import React, { useState } from 'react'
+/*
+ * @Author: 吴晓晴
+ * @Date: 2021-05-26 20:20:07
+ * @LastEditTime: 2021-05-26 23:28:15
+ * @FilePath: \webDevelopment\blogDev\jspang-blog\react-blog\admin\src\pages\AddArticle\index.js
+ */
+import React, { useState, useEffect } from 'react'
 import marked from 'marked'
 import './style.less'
 import { Row, Col, Input, Select, Button, DatePicker } from 'antd'
+import api from "@services"
 const { Option } = Select
 const { TextArea } = Input
 
-const AddArticle = () => {
+
+const AddArticle = (props) => {
 
     const [articleId, setArticleId] = useState(0)  // 文章的ID，如果是0说明是新增加，如果不是0，说明是修改
     const [articleTitle, setArticleTitle] = useState('')   //文章标题
@@ -30,6 +38,11 @@ const AddArticle = () => {
         smartypants: false,
     });
 
+    useEffect(() => {
+        getTypeInfo()
+
+    }, [])
+
     const changeContent = (e) => {
         setArticleContent(e.target.value)
         let html = marked(e.target.value)
@@ -43,6 +56,21 @@ const AddArticle = () => {
     }
 
 
+
+    const getTypeInfo = () => {
+        api.article.getTypeInfo().then(res => {
+            console.log(res)
+            if (res.data == '没有登录') {
+                localStorage.removeItem('openId')
+                props.history.push('/')
+            } else {
+                setTypeInfo(res.data)
+            }
+
+        })
+    }
+
+
     return (
         <div>
             <Row gutter={5}>
@@ -52,8 +80,15 @@ const AddArticle = () => {
                             <Input placeholder="博客标题" size="large" />
                         </Col>
                         <Col span={4}>
-                            <Select defaultValue="1" size="large">
-                                <Option value="1">视频教程</Option>
+                            <Select defaultValue={selectedType} size="large">
+
+                                {
+                                    typeInfo.map((item, index) => {
+                                        return (
+                                            <Option key={index} value={item.id}>{item.typeName}</Option>
+                                        )
+                                    })
+                                }
                             </Select>
                         </Col>
                     </Row>

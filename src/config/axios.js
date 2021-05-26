@@ -11,6 +11,9 @@ axios.defaults.baseURL = config.baseUrl;
 // 请求超时时间
 axios.defaults.timeout = 10000;
 
+//设置可以进行cookie session前后端共享
+axios.defaults.withCredentials = true;
+
 // post请求头
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 

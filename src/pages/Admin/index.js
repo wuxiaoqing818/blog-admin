@@ -30,7 +30,6 @@ const Admin = (props) => {
         console.log(e.key)
         props.history.push(e.key)
         //处理展开和收起
-        setOpenMenu('')//收起菜单
         setSelectedMenu(e.key)
         // switch (e.key) {
         //     case 'addArticle':
@@ -41,6 +40,13 @@ const Admin = (props) => {
         // }
     }
 
+    const onTitleClick=e=>{
+        console.log(e)
+        openMenu==e.key?setOpenMenu(''):setOpenMenu(e.key)
+    }
+
+
+
 
     useEffect(() => {
         const currentPath = props.location.pathname
@@ -50,28 +56,28 @@ const Admin = (props) => {
         console.log(subStr)
         console.log(currentPath)
         setSelectedMenu(currentPath)
-    }, [selectedMenu, openMenu])
+    }, [])
 
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
                 <div className="logo" />
-                <Menu theme="dark" 
-                defaultSelectedKeys={[selectedMenu]}
-                 defaultOpenKeys={[openMenu]}
-                  selectedKeys={[selectedMenu]} 
-                  openKeys={[openMenu]} 
-                  mode="inline">
+                <Menu theme="dark"
+                    defaultSelectedKeys={[selectedMenu]}
+                    defaultOpenKeys={[openMenu]}
+                    selectedKeys={[selectedMenu]}
+                    openKeys={[openMenu]}
+                    mode="inline">
                     <Menu.Item key="/index/key" icon={<PieChartOutlined />} onClick={handleClickArticle}>
                         工作台
                    </Menu.Item>
                     <Menu.Item key="2" icon={<DesktopOutlined />}>
                         添加文章
                    </Menu.Item>
-                    <SubMenu key="/index" icon={<UserOutlined />} title="文章管理" onClick={handleClickArticle}>
-                        <Menu.Item key="/index/add">添加文章</Menu.Item>
-                        <Menu.Item key="/index/list">文章列表</Menu.Item>
+                    <SubMenu key="/index" icon={<UserOutlined />} title="文章管理" onTitleClick={onTitleClick}>
+                        <Menu.Item key="/index/add" onClick={handleClickArticle}>添加文章</Menu.Item>
+                        <Menu.Item key="/index/list" onClick={handleClickArticle}>文章列表</Menu.Item>
 
                     </SubMenu>
 
