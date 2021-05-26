@@ -15,8 +15,8 @@ import Admin from './Admin'
 function Main() {
     return (
         <Router>
-            <Route path="/login/" exact component={Login}></Route>
-            <Route path="/index/" exact component={Admin}></Route>
+            <Route path="/login" exact component={Login}></Route>
+            <Route path="/index"  component={Admin}></Route>
         </Router>
     )
 }
