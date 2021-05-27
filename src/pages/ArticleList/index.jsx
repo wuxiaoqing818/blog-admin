@@ -1,12 +1,52 @@
-import React, { useState } from 'react'
-import { List, Row, Col, Modal, Message, Button } from 'antd'
-// import axios from 'axios'
-// import api from '@services'
+import React, { useState, useEffect } from 'react'
+import { List, Row, Col, Modal, Message, Button, message } from 'antd'
+import api from '@services'
+import './style.less'
 const { confirm } = Modal
 
-const ArticleList = () => {
+
+const ArticleList = (props) => {
 
     const [list, setList] = useState([])
+
+
+
+    useEffect(() => {
+        getList()
+    }, [])
+
+    const getList = () => {
+        api.article.getArticleList().then(res => {
+            console.log(res.list)
+            setList(res.list)
+
+        })
+    }
+
+    //删除文章
+    const delArticle = id => {
+        confirm({
+            title: '确定要删除这篇博客文章吗?',
+            content: '如果你点击OK，文章将永远被删除，无法恢复',
+            onOk() {
+                api.article.delArticle({id}).then(res => {
+                    message.success('文章删除成功')
+                    getList()
+                })
+
+
+            },
+            onCancel() {
+                message.success('已取消')
+            }
+        })
+
+    }
+
+    //修改文章
+    const updateArticle = id=>{
+        props.history.push('/index/add/'+id)
+    }
 
 
     return (
@@ -36,7 +76,7 @@ const ArticleList = () => {
                 dataSource={list}
                 renderItem={item => {
                     return (
-                        <List.item>
+                        <List.Item>
                             <Row className="list-div">
                                 <Col span={8}>
                                     {item.title}
@@ -50,13 +90,13 @@ const ArticleList = () => {
                                 <Col span={4}>
                                     {item.view_count}
                                 </Col>
-                                <Col span={1}>
-                                    <Button type="primary">修改</Button>
-                                    <Button>删除</Button>
+                                <Col span={4}>
+                                    <Button type="primary" style={{marginRight:'20px'}} onClick={()=>updateArticle(item.id)}>修改</Button>
+                                    <Button onClick={() => delArticle(item.id)}>删除</Button>
                                 </Col>
 
                             </Row>
-                        </List.item>
+                        </List.Item>
                     )
                 }
 

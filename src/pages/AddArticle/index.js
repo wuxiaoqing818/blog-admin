@@ -1,13 +1,13 @@
 /*
  * @Author: 吴晓晴
  * @Date: 2021-05-26 20:20:07
- * @LastEditTime: 2021-05-26 23:28:15
+ * @LastEditTime: 2021-05-27 23:45:03
  * @FilePath: \webDevelopment\blogDev\jspang-blog\react-blog\admin\src\pages\AddArticle\index.js
  */
 import React, { useState, useEffect } from 'react'
 import marked from 'marked'
 import './style.less'
-import { Row, Col, Input, Select, Button, DatePicker } from 'antd'
+import { Row, Col, Input, Select, Button, DatePicker, message } from 'antd'
 import api from "@services"
 const { Option } = Select
 const { TextArea } = Input
@@ -41,6 +41,13 @@ const AddArticle = (props) => {
     useEffect(() => {
         getTypeInfo()
 
+        let tmpId = props.match.params.id
+        console.log(props)
+        if (tmpId) {
+            setArticleId(tmpId)
+            getArticleById(tmpId)
+        }
+
     }, [])
 
     const changeContent = (e) => {
@@ -53,6 +60,22 @@ const AddArticle = (props) => {
         setIntroducemd(e.target.value)
         let html = marked(e.target.value)
         setIntroducehtml(html)
+    }
+
+    const getArticleById = id => {
+        api.article.getArticleById({ id }).then(res => {
+            let articleInfo = res.data[0]
+            setArticleTitle(articleInfo.title)
+            setArticleContent(articleInfo.article_content)
+            let html = marked(articleInfo.article_content)
+            setMarkdownContent(html)
+            setIntroducemd(articleInfo.introduce)
+            let tmpInt = marked(articleInfo.introduce)
+            setIntroducehtml(tmpInt)
+            setShowDate(articleInfo.addTime)
+            setSelectType(articleInfo.typeId)
+
+        })
     }
 
 
@@ -69,6 +92,83 @@ const AddArticle = (props) => {
 
         })
     }
+    const selectedTypeHander = (value) => {
+        setSelectType(value)
+
+    }
+
+    const saveArticle = () => {
+        const arrState = [selectedType, articleTitle, articleContent, introducemd, showDate]
+        const messageObj = [
+            '必须选择文章类型',
+            '文章名称不能为空',
+            '文章内容不能为空',
+            '文章简介不能为空',
+            '发布日期不能为空'
+        ]
+        let flag = true
+        arrState.forEach((item, index) => {
+            if (!flag) return false
+            if (!item) {
+                flag = false
+                message.error(messageObj[index])
+            }
+
+        })
+        if (!flag) return false
+
+        // if (!selectedType) {
+        //     message.error('必须选择文章类型')
+        //     return false
+        // } else if (!articleTitle) {
+        //     message.error('文章名称不能为空')
+        //     return false
+        // }
+        // else if (!articleContent) {
+        //     message.error('文章内容不能为空')
+        //     return false
+        // }
+        // else if (!introducemd) {
+        //     message.error('文章简介不能为空')
+        //     return false
+        // }
+        // else if (!showDate) {
+        //     message.error('发布日期不能为空')
+        //     return false
+        // }
+        let dataProps = {}
+        dataProps.type_id = selectedType
+        dataProps.title = articleTitle
+        dataProps.article_content = articleContent
+        dataProps.introduce = introducemd
+        let dateText = showDate.replace('-', '/')
+        dataProps.addTime = (new Date(dateText).getTime()) / 1000
+        if (articleId == 0) {
+            dataProps.view_count = 0
+            api.article.addArticle(dataProps).then(res => {
+                console.log(res)
+                setArticleId(res.insertId)
+                if (res.isSuccess) {
+                    message.success('文章添加成功')
+                } else {
+                    message.success('文章添加失败')
+                }
+            })
+        } else {
+            dataProps.id = articleId
+            api.article.updateArticle(dataProps).then(res => {
+                console.log(res)
+                if (res.isSuccess) {
+                    message.success('文章修改成功')
+                } else {
+                    message.error('文章修改失败')
+                }
+            })
+
+        }
+
+
+    }
 
 
     return (
@@ -77,15 +177,15 @@ const AddArticle = (props) => {
                 <Col span={18}>
                     <Row gutter={10}>
                         <Col span={20}>
-                            <Input placeholder="博客标题" size="large" />
+                            <Input placeholder="博客标题" size="large" value={articleTitle} onChange={e => setArticleTitle(e.target.value)} />
                         </Col>
                         <Col span={4}>
-                            <Select defaultValue={selectedType} size="large">
+                            <Select defaultValue={selectedType} size="large" onChange={selectedTypeHander}>
 
                                 {
                                     typeInfo.map((item, index) => {
                                         return (
-                                            <Option key={index} value={item.id}>{item.typeName}</Option>
+                                            <Option key={index} value={item.Id}>{item.typeName}</Option>
                                         )
                                     })
                                 }
@@ -99,6 +199,7 @@ const AddArticle = (props) => {
                                 className="markdown-content"
                                 rows={35}
                                 placeholder="文章内容"
+                                value={articleContent}
                                 onChange={changeContent}
                             />
                         </Col>
@@ -115,13 +216,14 @@ const AddArticle = (props) => {
                 <Col span={6}>
                     <Row>
                         <Col span={24}>
-                            <Button size="large" style={{ marginRight: '20px' }}>暂存文章</Button>
+                            <Button size="large" style={{ marginRight: '20px' }} onClick={saveArticle}>暂存文章</Button>
                             <Button type="primary" size="large">发布文章</Button>
                         </Col>
                         <Col span={24} style={{ marginTop: '20px' }}>
                             <TextArea
                                 rows={4}
                                 placeholder="文章简介"
+                                value={introducemd}
                                 onChange={changeIntroduce}
                             />
                             <div className="introduce-html" dangerouslySetInnerHTML={{ __html: introducehtml }} style={{ marginTop: '20px' }}>
@@ -132,6 +234,8 @@ const AddArticle = (props) => {
                                 <DatePicker
                                     placeholder="发布日期"
                                     size="large"
+                                    defaultValue={showDate}
+                                    onChange={(date, dateString) => setShowDate(dateString)}
                                 />
                             </div>
                         </Col>
