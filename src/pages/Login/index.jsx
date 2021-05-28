@@ -41,7 +41,7 @@ const Login = (props) => {
                 localStorage.setItem('openId', res.data.openId)
                 message.success('欢迎回来，我的主人')
                 setTimeout(() => {
-                    props.history.push('/index')
+                    props.history.push('/index/')
                 }, 1000);
 
 

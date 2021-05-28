@@ -19,7 +19,7 @@ const { SubMenu } = Menu;
 const Admin = (props) => {
     const [collapsed, setCollapsed] = useState(false)
     const [selectedMenu, setSelectedMenu] = useState('')
-    const [openMenu, setOpenMenu] = useState('')
+    const [openMenu, setOpenMenu] = useState('/index/')
 
     const onCollapse = collapsed => {
         // console.log(collapsed)
@@ -52,7 +52,7 @@ const Admin = (props) => {
         const currentPath = props.location.pathname
         const subStr = currentPath.substring(0, currentPath.indexOf('/', currentPath.indexOf('/') + 1));  //截取第二个/之前的路径判断是否为一级
         //判断当前路径是否是二级路由还是一级  二级就打开一级  一级就不打开
-        currentPath == subStr ? (setOpenMenu('')) : (setOpenMenu(subStr))
+        // currentPath == subStr ? (setOpenMenu('')) : (setOpenMenu(subStr))
         console.log(subStr)
         console.log(currentPath)
         setSelectedMenu(currentPath)
@@ -75,7 +75,7 @@ const Admin = (props) => {
                     <Menu.Item key="2" icon={<DesktopOutlined />}>
                         添加文章
                    </Menu.Item>
-                    <SubMenu key="/index" icon={<UserOutlined />} title="文章管理" onTitleClick={onTitleClick}>
+                    <SubMenu key="/index/" icon={<UserOutlined />} title="文章管理" onTitleClick={onTitleClick}>
                         <Menu.Item key="/index/add" onClick={handleClickArticle}>添加文章</Menu.Item>
                         <Menu.Item key="/index/list" onClick={handleClickArticle}>文章列表</Menu.Item>
 
@@ -95,7 +95,7 @@ const Admin = (props) => {
                     </Breadcrumb>
                     <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
                         <div>
-                            <Route path="/index" exact component={AddArticle} />
+                            <Route path="/index/" exact component={AddArticle} />
                             <Route path="/index/add" exact component={AddArticle} />
                             <Route path="/index/list" exact component={ArticleList} />
                             <Route path="/index/add/:id" exact component={AddArticle}></Route>

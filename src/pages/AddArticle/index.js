@@ -1,13 +1,14 @@
 /*
  * @Author: 吴晓晴
  * @Date: 2021-05-26 20:20:07
- * @LastEditTime: 2021-05-27 23:45:03
+ * @LastEditTime: 2021-05-28 22:38:47
  * @FilePath: \webDevelopment\blogDev\jspang-blog\react-blog\admin\src\pages\AddArticle\index.js
  */
 import React, { useState, useEffect } from 'react'
 import marked from 'marked'
 import './style.less'
 import { Row, Col, Input, Select, Button, DatePicker, message } from 'antd'
+import moment from 'moment';
 import api from "@services"
 const { Option } = Select
 const { TextArea } = Input
@@ -25,6 +26,7 @@ const AddArticle = (props) => {
     const [updateDate, setUpdateDate] = useState() //修改日志的日期
     const [typeInfo, setTypeInfo] = useState([]) // 文章类别信息
     const [selectedType, setSelectType] = useState(1) //选择的文章类别
+    // const [defaultTime,setDefaultTime] = useState(moment(new Date(), 'YYYY-MM-DD'))
 
 
     marked.setOptions({
@@ -39,8 +41,14 @@ const AddArticle = (props) => {
     });
 
     useEffect(() => {
-        getTypeInfo()
+        // console.log(moment().format('YYYY-MM-DD'))
+        // setShowDate(moment().format('YYYY-MM-DD'))
+        //时间回显处理
+        // if(showDate===undefined){
 
+        // }
+
+        getTypeInfo()
         let tmpId = props.match.params.id
         console.log(props)
         if (tmpId) {
@@ -116,7 +124,6 @@ const AddArticle = (props) => {
 
         })
         if (!flag) return false
-
         // if (!selectedType) {
         //     message.error('必须选择文章类型')
         //     return false
@@ -180,7 +187,7 @@ const AddArticle = (props) => {
                             <Input placeholder="博客标题" size="large" value={articleTitle} onChange={e => setArticleTitle(e.target.value)} />
                         </Col>
                         <Col span={4}>
-                            <Select defaultValue={selectedType} size="large" onChange={selectedTypeHander}>
+                            <Select value={selectedType} size="large" onChange={selectedTypeHander}>
 
                                 {
                                     typeInfo.map((item, index) => {
@@ -216,8 +223,8 @@ const AddArticle = (props) => {
                 <Col span={6}>
                     <Row>
                         <Col span={24}>
-                            <Button size="large" style={{ marginRight: '20px' }} onClick={saveArticle}>暂存文章</Button>
-                            <Button type="primary" size="large">发布文章</Button>
+                            <Button size="large" style={{ marginRight: '20px' }}>暂存文章</Button>
+                            <Button type="primary" size="large" onClick={saveArticle}>发布文章</Button>
                         </Col>
                         <Col span={24} style={{ marginTop: '20px' }}>
                             <TextArea
@@ -234,7 +241,11 @@ const AddArticle = (props) => {
                                 <DatePicker
                                     placeholder="发布日期"
                                     size="large"
-                                    defaultValue={showDate}
+                                    value={
+                                        showDate === undefined ? moment().format('YYYY-MM-DD') && setShowDate(moment().format('YYYY-MM-DD')) : moment(showDate, 'YYYY-MM-DD')
+                                    }
+                                    defaultValue={moment(new Date(), 'YYYY-MM-DD')}
+                                    placeholder='选择日期'
                                     onChange={(date, dateString) => setShowDate(dateString)}
                                 />
                             </div>
@@ -248,5 +259,6 @@ const AddArticle = (props) => {
     )
 
 }
+
 
 export default AddArticle
